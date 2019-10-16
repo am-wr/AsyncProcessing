@@ -32,4 +32,6 @@ dependencies {
     testImplementation 'io.projectreactor:reactor-test'
 
     compile 'com.boundary:high-scale-lib:1.0.6'
+    testImplementation 'org.openjdk.jmh:jmh-core:1.21'
+    testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:1.21'
 }
