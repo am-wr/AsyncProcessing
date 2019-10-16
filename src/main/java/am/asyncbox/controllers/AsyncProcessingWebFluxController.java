@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.io.Closeable;
@@ -16,14 +17,13 @@ import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 @SuppressWarnings("Convert2MethodRef")
 @Slf4j
-@Profile("with-future")
+@Profile("with-webflux")
 @RestController
-public class AsyncProcessingController implements Closeable {
+public class AsyncProcessingWebFluxController implements Closeable {
     private final AtomicLong ids = new AtomicLong();
 
     private final NonBlockingHashMapLong<CompletableFuture<TransactionDto>> inProgressTxs = new NonBlockingHashMapLong<CompletableFuture<TransactionDto>>();
@@ -31,7 +31,7 @@ public class AsyncProcessingController implements Closeable {
     private final Queue<TransactionDto> processingResponses = new ArrayBlockingQueue<>(1024 * 32);
 
     @RequestMapping(path = "/api/transactions", method = RequestMethod.POST)
-    public Future<TransactionDto> initiateTransaction() {
+    public Mono<TransactionDto> initiateTransaction() {
         long txId = nextId();
         log.info("Initiating new transaction [{}]", txId);
 
@@ -40,7 +40,7 @@ public class AsyncProcessingController implements Closeable {
         processingRequests.add(txId);
 
         log.info("Transaction submitted, returning Future for [{}]", txId);
-        return response;
+        return Mono.fromCompletionStage(response);
     }
 
     private long nextId() {
