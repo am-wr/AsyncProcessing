@@ -35,7 +35,7 @@ public final class ProcessingService<T> implements Closeable {
     private final long blockingTime = TimeUnit.MICROSECONDS.toNanos(500);
 
     public static <T> ProcessingService<T> ofSize(String name, int workers, @NonNull Supplier<T> inputProvider, @NonNull Consumer<T> processor) {
-        ExecutorService pool = Executors.newFixedThreadPool(1, NamedFactory.named(name));
+        ExecutorService pool = Executors.newFixedThreadPool(workers, NamedFactory.named(name));
         ArrayList<Future<?>> tasks = new ArrayList<>(workers);
         return new ProcessingService<>(workers, pool, tasks, inputProvider, processor);
     }
